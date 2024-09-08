@@ -6,12 +6,12 @@ resource "azurerm_public_ip" "public_ip" {
   allocation_method   = each.value["allocation_method"]
 }
 resource "azurerm_network_interface" "nic" {
-  for_each            = var.windows_virtualmachine
+  for_each            = var.linux_virtualmachine
   name                = "${each.value["name"]}-nic"
   location            = data.azurerm_resource_group.rg.location
   resource_group_name = data.azurerm_resource_group.rg.name
   dynamic "ip_configuration" {
-    for_each = var.windows_virtualmachine.network_interface
+    for_each = var.linux_virtualmachine.network_interface
     content {
       name                          = "internal"
       subnet_id                     = data.azurerm_subnet.snet.id
@@ -23,8 +23,8 @@ resource "azurerm_network_interface" "nic" {
 
   }
 }
-resource "azurerm_windows_virtual_machine" "win_vm" {
-  for_each            = var.windows_virtualmachine
+resource "azurerm_linux_virtual_machine" "lin_vm" {
+  for_each            = var.linux_virtualmachine
   name                = each.value["name"]
   resource_group_name = data.azurerm_resource_group.rg.name
   location            = data.azurerm_resource_group.rg.location
@@ -35,7 +35,7 @@ resource "azurerm_windows_virtual_machine" "win_vm" {
     [for nc in azurermazurerm_network_interface.nic : nc.id],
   ]
   dynamic "source_image_reference" {
-    for_each = var.windows_virtualmachine.source_image_reference
+    for_each = var.linux_virtualmachine.source_image_reference
     content {
       publisher = source_image_reference.value["publisher"]
       offer     = source_image_reference.value["offer"]
@@ -44,7 +44,7 @@ resource "azurerm_windows_virtual_machine" "win_vm" {
     }
   }
   dynamic "os_disk" {
-    for_each = var.windows_virtualmachine.os_disk
+    for_each = var.linux_virtualmachine.os_disk
     content {
       caching              = os_disk.value["caching"]
       storage_account_type = os_disk.value["storage_account_type"]
@@ -63,7 +63,7 @@ resource "azurerm_managed_disk" "data_disk" {
 }
 resource "azurerm_virtual_machine_data_disk_attachment" "diskattachment" {
   managed_disk_id    = [for disk in azurermazurerm_managed_disk.data_disk : disk.id]
-  virtual_machine_id = [for vm in azurermazurerm_windows_virtual_machine.win_vm : vm.id]
+  virtual_machine_id = [for vm in azurerm_linux_virtual_machine.lin_vm : vm.id]
   lun                = var.common_windowsVM.data_disk.lun
   caching            = "ReadWrite"
 }
