@@ -8,10 +8,10 @@ variable "common_windowsVM" {
 }
 variable "public_ip" {
   description = "value"
-  type = optional(object({
+  type = object({
     name              = string
     allocation_method = string
-  }))
+  })
 }
 variable "windows_virtualmachine" {
   description = "value"
