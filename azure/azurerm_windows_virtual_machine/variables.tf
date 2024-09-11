@@ -13,32 +13,24 @@ variable "public_ip" {
     allocation_method = string
   })
 }
-variable "windows_virtualmachine" {
-  description = "value"
-  type = map(object({
-    name           = string
-    size           = string
-    admin_username = string
-    admin_password = string
-    source_image_reference = object({
-      publisher = string
-      offer     = string
-      sku       = string
-      version   = string
-    })
-    os_disk = object({
-      caching              = string
-      storage_account_type = string
-    })
-    network_interface = object({
-      private_ip_address         = string
-      private_ip_address_version = string
-    })
-    data_disks = map(object({
-      name                 = string
-      storage_account_type = string
-      disk_size_gb         = number
-      lun                  = number
-    }))
+variable "config" {
+  description = "List of configurations for the Windows VMs and associated resources."
+  type = list(object({
+    resource_group_name    = string
+    location               = string
+    virtual_network_name   = string
+    address_space          = string
+    subnet_name            = string
+    subnet_address_prefix  = string
+    network_interface_name = string
+    vm_name                = string
+    vm_size                = string
+    admin_username         = string
+    admin_password         = string
+    os_disk_size_gb        = number
+    data_disk_name         = string
+    data_disk_size_gb      = number
+    tags                   = map(string)
   }))
 }
+
